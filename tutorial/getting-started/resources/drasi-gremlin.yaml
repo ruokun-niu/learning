@@ -1,0 +1,41 @@
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gremlin-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gremlin-server
+  template:
+    metadata:
+      labels:
+        app: gremlin-server
+    spec:
+      containers:
+        - name: gremlin-reaction
+          image: tinkerpop/gremlin-server:latest
+          ports:
+            - containerPort: 8182
+          volumeMounts:
+            - name: config-volume
+              mountPath: /opt/gremlin-server/conf/gremlin-server.yaml
+              subPath: gremlin-server.yaml
+      volumes:
+        - name: config-volume
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gremlin-service
+  labels:
+    app: gremlin-server
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8182
+      targetPort: 8182
+  selector:
+    app: gremlin-server
